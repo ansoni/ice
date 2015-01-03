@@ -418,6 +418,10 @@ class DashboardController {
     def summary = {}
 
     def detail = {}
+    
+    def daily = {}
+	
+    def cumulative = {}
 
     def reservation = {}
 
