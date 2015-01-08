@@ -27,21 +27,16 @@
   <table ng-show="!graphOnly()">
     <tr>
       <td><b>Cumulative Usage Cost</b></td>
-      <td>Start</td>
-      <td>
-        <input class="required" type="text" name="start" id="start" size="14"/>
+      <td>Start <input class="required" type="text" name="start" id="start" size="14"/>
       </td>
-      <td>  End </td>
-      <td><input class="required" type="text" name="end" id="end" size="14"/>
+      <td>End <input class="required" type="text" name="end" id="end" size="14"/>
       </td>
       <td>
-      Account
-          
-          <select ng-model="selected_accounts" ng-options="a.name for a in accounts | filter:filter_accounts" ng-change="accountsChanged()"  ></select>
-          
-      </div>
+      Account <select ng-model="selected_accounts" ng-options="a.name for a in accounts | filter:filter_accounts" ng-change="accountsChanged()"  ></select>
       </td>
-      </tr>
+      <td>Daily Estimate <input class="required" type="text" name="dailyEstimate" id="dailyEstimate" size="14" ng-model="dailyEstimate"/>
+      </td>
+    </tr>
   </table>
 
   <div class="buttons" ng-show="!graphOnly()">
