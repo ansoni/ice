@@ -131,6 +131,15 @@ class BootStrap {
                     reservationAccessExternalIds.put(accounts.get(accountName), externalId);
                 }
             }
+			
+			for (String name: prop.stringPropertyNames()) {
+				if (name.startsWith("ice.accountdailyestimate.")) {
+					String accountName = name.substring("ice.accountdailyestimate.".length());
+					
+					String estimate = prop.getProperty("ice.accountdailyestimate." + accountName, "");
+					accounts.get(accountName).setDailyEstimate(Double.parseDouble(estimate));
+				}
+			}
 
             BasicAccountService accountService = new BasicAccountService(Lists.newArrayList(accounts.values()), reservationAccounts,
                     reservationAccessRoles, reservationAccessExternalIds);

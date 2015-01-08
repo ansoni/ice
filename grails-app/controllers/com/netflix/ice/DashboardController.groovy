@@ -87,7 +87,11 @@ class DashboardController {
         IceSession sess = request["iceSession"];
         Collection<Account> data = tagGroupManager == null ? [] : tagGroupManager.getAccounts(new TagLists(), sess);
 
-        def result = [status: 200, data: data]
+		def dailyEstimates = [:];
+		for(Account acct: data){
+			dailyEstimates.put(acct.name, acct.dailyEstimate)
+		}
+        def result = [status: 200, data: data, estimates:dailyEstimates]
         render result as JSON
     }
 
@@ -418,6 +422,10 @@ class DashboardController {
     def summary = {}
 
     def detail = {}
+    
+    def daily = {}
+	
+    def cumulative = {}
 
     def reservation = {}
 
