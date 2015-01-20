@@ -23,6 +23,9 @@
   <title>Authentication Error</title>
 </head>
 <body>
-   Authentication Error.  Click <g:link resource="dashboard">here</g:link> to try again.
+   Authentication Error.<br/><br/>
+${loginConfig.noAccessMessage}<br/><br/>
+
+Click <g:link resource="dashboard">here</g:link> to try again.
 </body>
 </html>

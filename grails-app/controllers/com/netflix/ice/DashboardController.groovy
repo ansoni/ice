@@ -187,7 +187,7 @@ class DashboardController {
 
     def getResourceGroups = {
         IceSession sess = request["iceSession"];
-        List<Account> accounts = getConfig().accountService.getAccounts(listParams("account", sess));
+        List<Account> accounts = getConfig().accountService.getAccounts(listParams("account"), sess);
         List<Region> regions = Region.getRegions(listParams("region"));
         List<Zone> zones = Zone.getZones(listParams("zone"));
         List<Product> products = getConfig().productService.getProducts(listParams("product"));
@@ -196,7 +196,7 @@ class DashboardController {
         for (Product product: products) {
 
             TagGroupManager tagGroupManager = getManagers().getTagGroupManager(product);
-            Collection<ResourceGroup> resourceGroups = tagGroupManager.getResourceGroups(new TagLists(accounts, regions, zones, Lists.newArrayList(product)));
+            Collection<ResourceGroup> resourceGroups = tagGroupManager == null ? [] : tagGroupManager.getResourceGroups(new TagLists(accounts, regions, zones, Lists.newArrayList(product)));
             data.addAll(resourceGroups);
         }
 
@@ -217,7 +217,6 @@ class DashboardController {
         boolean forReservation = query.has("forReservation") ? query.getBoolean("forReservation") : false;
 
         Collection<Operation> data;
-        System.out.println(new Date().getTime());
         if (showResourceGroups) {
             data = Sets.newTreeSet();
             if (products.size() == 0) {
@@ -228,9 +227,10 @@ class DashboardController {
                     continue;
 
                 TagGroupManager tagGroupManager = getManagers().getTagGroupManager(product);
+                if (tagGroupManager == null)
+                    continue;
                 Collection<Operation> tmp = tagGroupManager.getOperations(new TagLists(accounts, regions, zones, products, operations, null, null));
                 data.addAll(tmp);
-                System.out.println(new Date().getTime() + " " + product);
             }
         }
         else {
@@ -269,6 +269,7 @@ class DashboardController {
                     continue;
 
                 TagGroupManager tagGroupManager = getManagers().getTagGroupManager(product);
+                if (tagGroupManager == null) continue;
                 Collection<UsageType> result = tagGroupManager.getUsageTypes(new TagLists(accounts, regions, zones, null, operations, null, null));
                 data.addAll(result);
             }
@@ -441,7 +442,6 @@ class DashboardController {
         AggregateType aggregate = AggregateType.valueOf(query.getString("aggregate"));
         IceSession sess = request["iceSession"];
         List<Account> accounts = getConfig().accountService.getAccounts(listParams(query, "account"), sess);
-        System.out.println(accounts);
         List<Region> regions = Region.getRegions(listParams(query, "region"));
         List<Zone> zones = Zone.getZones(listParams(query, "zone"));
         List<Product> products = getConfig().productService.getProducts(listParams(query, "product"));
@@ -531,7 +531,6 @@ class DashboardController {
                     tmp.put(new com.netflix.ice.tag.ApplicationGroup(name), dataOfProduct.get(Tag.aggregated));
 
                     merge(tmp, data);
-                    System.out.println(product);
                 }
             }
         }
@@ -571,6 +570,7 @@ class DashboardController {
                         continue;
                 }
                 DataManager dataManager = isCost ? getManagers().getCostManager(product, consolidateType) : getManagers().getUsageManager(product, consolidateType);
+                if (dataManager == null) continue;
                 Map<Tag, double[]> dataOfProduct = dataManager.getData(
                     interval,
                     new TagLists(accounts, regions, zones, Lists.newArrayList(product), operations, usageTypes, resourceGroups),
@@ -585,7 +585,6 @@ class DashboardController {
                 } 
                 
                 merge(dataOfProduct, data);
-                System.out.println(product);
             }
         }
         else {

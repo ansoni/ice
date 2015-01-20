@@ -115,7 +115,7 @@ public class TagGroup implements Comparable<TagGroup>, Serializable {
     private static Map<TagGroup, TagGroup> tagGroups = Maps.newConcurrentMap();
 
     public static TagGroup getTagGroup(Account account, Region region, Zone zone, Product product, Operation operation, UsageType usageType, ResourceGroup resourceGroup) {
-        TagGroup newOne = new TagGroup(account, region, zone, product, operation, usageType, resourceGroup);
+	TagGroup newOne = new TagGroup(account, region, zone, product, operation, usageType, resourceGroup);
         TagGroup oldOne = tagGroups.get(newOne);
         if (oldOne != null) {
             return oldOne;

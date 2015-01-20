@@ -89,12 +89,18 @@ class LoginController {
         }
     }
 
-    /** A Login Failure */
-    def failure = {}
+    /** A Login Failure, pass in the config so that we can give a configurable message */
+    def failure = {
+      [loginConfig: getConfig()]
+    }
     /** A Login Error(code issues perhaps) */
-    def error = {}
+    def error = {
+      [loginConfig: getConfig()]
+    }
     /** A Login Logout */
-    def logout = {}
+    def logout = {
+      [loginConfig: getConfig()]
+    }
 
     /**
     * Redirect Authentication request to the appropriate place.

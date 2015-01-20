@@ -57,6 +57,12 @@ public class LoginOptions {
     public static final String LOGIN_PASSPHRASE = "ice.login.passphrase";
 
     /**
+    * Message to display when a user fails access.  Nice
+    * directions to get them access
+    */
+    public static final String NO_ACCESS_MESSAGE = "ice.login.no_access_message";
+
+    /**
     * Audit log location
     */
     public static final String LOGIN_LOG = "ice.login.log";

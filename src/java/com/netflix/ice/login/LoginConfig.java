@@ -41,6 +41,7 @@ public class LoginConfig implements BaseConfig {
     private static final Logger logger = LoggerFactory.getLogger(LoginConfig.class);
 
     public final String loginClasses;
+    public final String noAccessMessage;
     public final String loginLogFile;
     public final String loginEndpoints;
     public boolean loginEnable = false;
@@ -56,6 +57,7 @@ public class LoginConfig implements BaseConfig {
         loginClasses = properties.getProperty(LoginOptions.LOGIN_CLASSES);
         loginEndpoints = properties.getProperty(LoginOptions.LOGIN_ENDPOINTS);
         loginDefaultEndpoint = properties.getProperty(LoginOptions.LOGIN_DEFAULT);
+        noAccessMessage = properties.getProperty(LoginOptions.NO_ACCESS_MESSAGE);
 
         loadLoginPlugins(loginEndpoints, loginClasses, properties);
         LoginConfig.instance = this;

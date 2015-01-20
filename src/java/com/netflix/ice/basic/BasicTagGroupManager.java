@@ -46,6 +46,7 @@ public class BasicTagGroupManager extends Poller implements TagGroupManager {
     private File file;
     private TreeMap<Long, Collection<TagGroup>> tagGroups;
     private TreeMap<Long, Collection<TagGroup>> tagGroupsWithResourceGroups;
+    private TreeMap<String, TreeMap<Long, Collection<TagGroup>>> tagGroupsWithResourceGroupsByAccount;
     private Interval totalInterval;
 
     BasicTagGroupManager(Product product) {
@@ -75,8 +76,39 @@ public class BasicTagGroupManager extends Poller implements TagGroupManager {
                 }
                 this.totalInterval = totalInterval;
                 this.tagGroups = tagGroups;
-                this.tagGroupsWithResourceGroups = tagGroupsWithResourceGroups;
                 logger.info("done reading " + file);
+
+                // segregate out by Account 
+                logger.info("Split Tag Group Resources by Account");
+                TreeMap<String, TreeMap<Long, Collection<TagGroup>>> tagGroupsWithResourceGroupsByAccount  = new TreeMap<String, TreeMap<Long, Collection<TagGroup>>>();
+                // iterate all months
+                for (Map.Entry<Long,Collection<TagGroup>> entry : tagGroupsWithResourceGroups.entrySet()) {
+                    Long millis = entry.getKey();
+                    logger.info("Process " + millis);
+                    Collection<TagGroup> tagGroupsEntry = entry.getValue();
+                    // each tagGroup for a month
+                    for(TagGroup tg : tagGroupsEntry) {
+                        String accountName = tg.account.name;
+                        logger.info("Process " + tg.resourceGroup + " for " + tg.account.name);
+                        TreeMap<Long, Collection<TagGroup>> accountEntry = tagGroupsWithResourceGroupsByAccount.get(accountName);
+                        if (accountEntry == null) { //initialize
+                            logger.info("Initialize " + accountName + " TagGroup TreeMap");
+                            accountEntry = new TreeMap<Long, Collection<TagGroup>>();
+                            tagGroupsWithResourceGroupsByAccount.put(accountName, accountEntry);
+                        }
+                        Collection<TagGroup> tagGroupCollection = accountEntry.get(millis);
+                        if (tagGroupCollection == null) { //initialize
+                            logger.info("Initialize " + accountName + " TagGroup Collection");
+                            tagGroupCollection = new ArrayList<TagGroup>();
+                            accountEntry.put(millis, tagGroupCollection);
+                        }
+                        tagGroupCollection.add(tg);
+                    }
+                }
+                logger.info("Finished Spliting Tag Group Resources by Account");
+
+                this.tagGroupsWithResourceGroups = tagGroupsWithResourceGroups;
+                this.tagGroupsWithResourceGroupsByAccount = tagGroupsWithResourceGroupsByAccount;
             }
             finally {
                 in.close();
@@ -119,6 +151,23 @@ public class BasicTagGroupManager extends Poller implements TagGroupManager {
         for (Long monthMilli: monthMillis) {
             tagGroupsInRange.addAll(this.tagGroupsWithResourceGroups.get(monthMilli));
         }
+        return tagGroupsInRange;
+    }
+
+    private Set<TagGroup> getAccountTagGroupsWithResourceGroupsInRange(Collection<String> accounts, Collection<Long> monthMillis) {
+        Set<TagGroup> tagGroupsInRange = Sets.newHashSet();
+        for (String account : accounts) {
+            logger.info("Get TagGroupsWithResourceGroups for " + account + " " + monthMillis.toString());
+            TreeMap<Long, Collection<TagGroup>> accountTagGroupsWithResourceGroups = tagGroupsWithResourceGroupsByAccount.get(account);
+            if (accountTagGroupsWithResourceGroups == null) 
+                continue;
+            for (Long monthMilli: monthMillis) {
+                 Collection<TagGroup> tagGroups = accountTagGroupsWithResourceGroups.get(monthMilli);
+                 if (tagGroups == null)
+                     continue;
+                 tagGroupsInRange.addAll(tagGroups);
+            }
+        }  
         return tagGroupsInRange;
     }
 
@@ -229,9 +278,17 @@ public class BasicTagGroupManager extends Poller implements TagGroupManager {
         return result;
     }
 
-    public Collection<ResourceGroup> getResourceGroups(Interval interval, TagLists tagLists) {
+    public Collection<ResourceGroup> getResourceGroups(Interval interval, TagLists tagLists, IceSession session) {
         Set<ResourceGroup> result = Sets.newTreeSet();
-        Set<TagGroup> tagGroupsInRange = getTagGroupsWithResourceGroupsInRange(getMonthMillis(interval));
+        Set<TagGroup> tagGroupsInRange;
+        if (session == null || session.isAdmin())
+        {
+             tagGroupsInRange = getTagGroupsWithResourceGroupsInRange(getMonthMillis(interval));
+        }
+        else
+        {
+             tagGroupsInRange = getAccountTagGroupsWithResourceGroupsInRange(session.allowedAccounts(), getMonthMillis(interval));
+        }
 
         for (TagGroup tagGroup: tagGroupsInRange) {
             if (tagLists.contains(tagGroup) && tagGroup.resourceGroup != null)
@@ -270,7 +327,7 @@ public class BasicTagGroupManager extends Poller implements TagGroupManager {
     }
 
     public Collection<ResourceGroup> getResourceGroups(TagLists tagLists) {
-        return this.getResourceGroups(totalInterval, tagLists);
+        return this.getResourceGroups(totalInterval, tagLists, null);
     }
 
     public Interval getOverlapInterval(Interval interval) {
@@ -306,7 +363,7 @@ public class BasicTagGroupManager extends Poller implements TagGroupManager {
                 groupByTags.addAll(getUsageTypes(interval, tagListsForTag));
                 break;
             case ResourceGroup:
-                groupByTags.addAll(getResourceGroups(interval, tagListsForTag));
+                groupByTags.addAll(getResourceGroups(interval, tagListsForTag, null));
                 break;
         }
         if (groupBy == TagType.Operation && !forReservation) {

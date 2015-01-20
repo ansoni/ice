@@ -28,8 +28,26 @@ public abstract class Tag implements Comparable<Tag>, Serializable {
     };
 
     public final String name;
+    public final String s3Name;
     Tag(String name) {
         this.name = name;
+        this.s3Name = Tag.toS3(name);
+    }
+
+    /**
+     * Normalize a tagname suitable to be an S3 Filename
+     */
+    public static String toS3(String name) {
+        name = name.replaceAll("/","--");
+        return name;
+    }
+ 
+    /**
+     * Normalize a tagname from an S3 Filename
+     */
+    public static String fromS3(String name) {
+        name = name.replaceAll("--","/");
+        return name;
     }
 
     @Override

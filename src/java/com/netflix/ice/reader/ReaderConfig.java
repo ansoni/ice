@@ -47,6 +47,7 @@ public class ReaderConfig extends Config {
     public final BasicWeeklyCostEmailService costEmailService;
     public final Managers managers;
     public final int monthlyCacheSize;
+    public final String readOnlyDataFilePrefix;
 
     /**
      *
@@ -74,6 +75,7 @@ public class ReaderConfig extends Config {
         currencySign = properties.getProperty(IceOptions.CURRENCY_SIGN, "$");
         currencyRate = Double.parseDouble(properties.getProperty(IceOptions.CURRENCY_RATE, "1"));
         highstockUrl = properties.getProperty(IceOptions.HIGHSTOCK_URL, "http://code.highcharts.com/stock/highstock.js");
+        readOnlyDataFilePrefix = properties.getProperty(IceOptions.READ_ONLY_DATA_FILE_PREFIX);
 
         this.managers = managers;
         this.applicationGroupService = applicationGroupService;

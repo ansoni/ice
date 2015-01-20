@@ -250,7 +250,9 @@ public class Saml extends LoginMethod {
 
         //require at least one account
         if (! foundAnAccount) {
-            throw new LoginMethodException("SAML Assertion must give at least one Account as part of the Assertion");
+            lr.loginFailed=true;
+            //throw new LoginMethodException("SAML Assertion must give at least one Account as part of the Assertion");
+            return;
         }
 
         //set expiration date

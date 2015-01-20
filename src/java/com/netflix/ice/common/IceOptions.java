@@ -190,4 +190,10 @@ public class IceOptions {
     * Simple passphrase for allowing Authentication
     */
     public static final String LOGIN_PASSPHRASE = "ice.login.passphrase";
+
+    /**
+    * A path with a partial filename that we use as our base for storage-backed
+    * read only data cache.  This is useful for super large datasets.
+    */
+    public static final String READ_ONLY_DATA_FILE_PREFIX = "ice.read_only_data_file_prefix";
 }

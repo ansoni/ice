@@ -23,6 +23,9 @@
   <title>Login Failure</title>
 </head>
 <body>
-   A Login Failure occurred.  Click <g:link resource="dashboard">here</g:link> to try again.
+   A Login Failure occurred.<br/><br/>  
+${loginConfig.noAccessMessage}<br/><br/>
+
+Click <g:link resource="dashboard">here</g:link> to try again.
 </body>
 </html>

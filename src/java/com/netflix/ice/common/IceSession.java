@@ -63,7 +63,7 @@ public class IceSession {
     * Is this session authenticated?
     */ 
     public Boolean isAuthenticated() { 
-       logger.error("isAuthenticated?");
+       logger.debug("isAuthenticated?");
        Boolean authd = (Boolean)session.getAttribute(AUTHENTICATED_SESSION_KEY);
        if (authd != null && authd && withinAllowTime()) {
           return true;
@@ -90,7 +90,7 @@ public class IceSession {
     * Has this Session expired?
     */
     public boolean withinAllowTime() {
-        logger.info("Within Allow Time?");
+        logger.debug("Within Allow Time?");
         Date notBefore = (Date)session.getAttribute(START_DATE);
         Date notAfter = (Date)session.getAttribute(END_DATE);
         if (notBefore == null || notAfter == null) {
@@ -151,6 +151,13 @@ public class IceSession {
     public void revokeAccount(String accountId) {
         session.removeAttribute(ALLOWED_ACCOUNT_SESSION_PREFIX_KEY + accountId);
        
+    }
+
+    /**
+    * Is this an Admin session?
+    */
+    public boolean isAdmin() {
+        return ((Boolean)session.getAttribute(ADMIN_SESSION_KEY)).booleanValue();
     }
 
     /**
